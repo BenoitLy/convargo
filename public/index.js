@@ -33,10 +33,17 @@ var deliveries = [{
   'options': {
     'deductibleReduction': false
   },
-  'price': 0,
+  'price1': 0,
+  'price2': 0,
+  'price3': 0,
   'commission': {
+  	'total1': 0,
+  	'total2': 0,
+  	'treasury': 0,
     'insurance': 0,
-    'convargo': 0
+    'convargo1': 0,
+    'convargo2': 0
+
   }
 }, {
   'id': '65203b0a-a864-4dea-81e2-e389515752a8',
@@ -47,10 +54,17 @@ var deliveries = [{
   'options': {
     'deductibleReduction': true
   },
-  'price': 0,
+  'price1': 0,
+  'price2': 0,
+  'price3': 0,
   'commission': {
+  	'total1': 0,
+  	'total2': 0,
+  	'treasury': 0,
     'insurance': 0,
-    'convargo': 0
+    'convargo1': 0,
+    'convargo2': 0
+
   }
 }, {
   'id': '94dab739-bd93-44c0-9be1-52dd07baa9f6',
@@ -61,10 +75,16 @@ var deliveries = [{
   'options': {
     'deductibleReduction': true
   },
-  'price': 0,
+  'price1': 0,
+  'price2': 0,
+  'price3': 0,
   'commission': {
+  	'total1': 0,
+  	'total2': 0,
+  	'treasury': 0,
     'insurance': 0,
-    'convargo': 0
+    'convargo1': 0,
+    'convargo2': 0
   }
 }];
 
@@ -94,7 +114,7 @@ const actors = [{
     'amount': 0
   }]
 }, {
-  'rentalId': '65203b0a-a864-4dea-81e2-e389515752a8',
+  'deliveryId': '65203b0a-a864-4dea-81e2-e389515752a8',
   'payment': [{
     'who': 'shipper',
     'type': 'debit',
@@ -117,7 +137,7 @@ const actors = [{
     'amount': 0
   }]
 }, {
-  'rentalId': '94dab739-bd93-44c0-9be1-52dd07baa9f6',
+  'deliveryId': '94dab739-bd93-44c0-9be1-52dd07baa9f6',
   'payment': [{
     'who': 'shipper',
     'type': 'debit',
@@ -151,16 +171,14 @@ function findTrucker(idTrucker)
 	{
 		return trucker.id == idTrucker;
 	});
-	console.log(idTrucker);
-	console.log(truck);
 	return truck;
 }
 
-function calculShippingPrice(delivery) 
+function calculShippingPrice(delivery, percent) 
 {
 	var truck = findTrucker(delivery.truckerId);
 	console.log(truck);
-	var shipPrice = (truck.pricePerKm * delivery.distance) + (truck.pricePerVolume * delivery.volume);
+	var shipPrice = (truck.pricePerKm * delivery.distance) + (truck.pricePerVolume * percent * delivery.volume);
 	return shipPrice; 
 }
 
@@ -168,13 +186,11 @@ function updateShippingPrice1()
 {
 	deliveries.forEach(function(delivery)
 	{
-		delivery.price = calculShippingPrice(delivery);
+		delivery.price1 = calculShippingPrice(delivery, 1);
 	});
 }
 
 updateShippingPrice1();
-console.log(deliveries);
-
 
 // Exercice 2
 
@@ -184,26 +200,134 @@ function updateShippingPrice2()
 {
 	deliveries.forEach(function(delivery)
 	{
-		if ((5 <= delivery.volume) && (delivery.volume < 10))
+		if (delivery.volume < 5)
 		{
-			delivery.price = delivery.price * 0.9
+			delivery.price2 = delivery.price1;
+		}
+
+		else if ((5 <= delivery.volume) && (delivery.volume < 10))
+		{
+			delivery.price2 = calculShippingPrice(delivery, 0.9);
 		}
 
 		else if ((10 <= delivery.volume) && (delivery.volume < 25))
 		{
-			delivery.price = delivery.price * 0.7
+			delivery.price2 = calculShippingPrice(delivery, 0.7);
 		}
 
 		else if (delivery.volume >= 25)
 		{
-			delivery.price = delivery.price * 0.5
+			delivery.price2 = calculShippingPrice(delivery, 0.5);
 		}
-
 	});
 }
 
 updateShippingPrice2();
-console.log(deliveries);
+
+// Exercice 3
+
+console.log('Exercice 3')
+
+function calculCommission(delivery)
+{
+	delivery.commission.total1 = delivery.price2 * 0.3;
+	delivery.commission.insurance = delivery.commission.total1 * 0.5
+	delivery.commission.treasury = Math.floor(delivery.distance / 500) + 1;
+	delivery.commission.convargo1 = delivery.commission.total1 - delivery.commission.insurance - delivery.commission.treasury;
+}
+
+function updateCommission()
+{
+	deliveries.forEach(function(delivery)
+	{
+		calculCommission(delivery);
+	});
+}
+
+updateCommission();
+
+// Exercice 4
+
+console.log("Exercice 4")
+
+function calculShippingPriceAndCommission(delivery)
+{
+	if (delivery.options.deductibleReduction)
+	{
+		delivery.price3 = delivery.price2 + delivery.volume;
+		delivery.commission.convargo2 = delivery.commission.convargo1 + delivery.volume;
+		delivery.commission.total2 = delivery.commission.total1 + delivery.volume;
+	}
+	else
+	{
+		delivery.price3 = delivery.price2;
+		delivery.commission.convargo2 = delivery.commission.convargo1;
+		delivery.commission.total2 = delivery.commission.total1;	
+	}
+}
+
+function updatePriceAndCommission()
+{
+	deliveries.forEach(function(delivery)
+	{
+		calculShippingPriceAndCommission(delivery);
+	});
+}
+
+updatePriceAndCommission();
+
+// Exercice 5
+
+console.log("Exercice 5")
+
+function findDeliveryActors(idDelivery)
+{
+	var deliveryActors = actors.find(function(actor)
+	{
+		return actor.deliveryId == idDelivery;
+	});
+	return deliveryActors;
+}
+
+function updateDeliveryActors(delivery)
+{
+	var deliveryActors = findDeliveryActors(delivery.id);
+	deliveryActors.payment.forEach(function(actor)
+	{
+		if (actor.who == "shipper") 
+		{
+			actor.amount = actor.amount - delivery.price3;
+		}
+		else if (actor.who == "owner") 
+		{
+			actor.amount = actor.amount + delivery.price3 - delivery.commission.total2;
+		}
+		else if (actor.who == "insurance") 
+		{
+			actor.amount = actor.amount + delivery.commission.insurance;
+		}
+		else if (actor.who == "treasury") 
+		{
+			actor.amount = actor.amount + delivery.commission.treasury;
+		}
+		else if (actor.who == "convargo") 
+		{
+			actor.amount = actor.amount + delivery.commission.convargo2;
+		}
+	});
+}
+
+function updateActors()
+{
+	deliveries.forEach(function(delivery)
+	{
+		updateDeliveryActors(delivery);
+	})
+}
+
+updateActors();
+
+
 
 console.log(truckers);
 console.log(deliveries);
