@@ -172,19 +172,39 @@ function updateShippingPrice1()
 	});
 }
 
+updateShippingPrice1();
+console.log(deliveries);
+
+
 // Exercice 2
 
 console.log('Exercice 2')
 
 function updateShippingPrice2()
 {
-	
+	deliveries.forEach(function(delivery)
+	{
+		if ((5 <= delivery.volume) && (delivery.volume < 10))
+		{
+			delivery.price = delivery.price * 0.9
+		}
+
+		else if ((10 <= delivery.volume) && (delivery.volume < 25))
+		{
+			delivery.price = delivery.price * 0.7
+		}
+
+		else if (delivery.volume >= 25)
+		{
+			delivery.price = delivery.price * 0.5
+		}
+
+	});
 }
 
+updateShippingPrice2();
+console.log(deliveries);
 
-
-
-updateShippingPrice1();
 console.log(truckers);
 console.log(deliveries);
 console.log(actors);
