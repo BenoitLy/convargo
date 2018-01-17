@@ -141,6 +141,50 @@ const actors = [{
   }]
 }];
 
+// Exercice 1
+
+console.log('Exercice 1')
+
+function findTrucker(idTrucker)
+{
+	var truck = truckers.find(function(trucker)
+	{
+		return trucker.id == idTrucker;
+	});
+	console.log(idTrucker);
+	console.log(truck);
+	return truck;
+}
+
+function calculShippingPrice(delivery) 
+{
+	var truck = findTrucker(delivery.truckerId);
+	console.log(truck);
+	var shipPrice = (truck.pricePerKm * delivery.distance) + (truck.pricePerVolume * delivery.volume);
+	return shipPrice; 
+}
+
+function updateShippingPrice1()
+{
+	deliveries.forEach(function(delivery)
+	{
+		delivery.price = calculShippingPrice(delivery);
+	});
+}
+
+// Exercice 2
+
+console.log('Exercice 2')
+
+function updateShippingPrice2()
+{
+	
+}
+
+
+
+
+updateShippingPrice1();
 console.log(truckers);
 console.log(deliveries);
 console.log(actors);
